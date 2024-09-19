@@ -1,1 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harvest Quizz Bible V01</title>
+    <style>
+        /* Styles inchangés */
+    </style>
+</head>
+<body>
+    <!-- Structure HTML inchangée -->
 
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let currentQuestion = 0;
+        let score = 0;
+        let playerInfo = {};
+        let playerId = null;
+
+        async function startGame() {
+            playerInfo.name = document.getElementById("player-name").value;
+            playerInfo.phone = document.getElementById("player-phone").value;
+            playerInfo.country = document.getElementById("player-country").value;
+            playerInfo.city = document.getElementById("player-city").value;
+
+            if (playerInfo.name && playerInfo.phone && playerInfo.country && playerInfo.city) {
+                try {
+                    const response = await fetch(`${API_URL}/players`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(playerInfo),
+                    });
+                    const data = await response.json();
+                    playerId = data._id;
+                    
+                    document.getElementById("player-info").classList.add("hidden");
+                    document.getElementById("question-container").classList.remove("hidden");
+                    displayQuestion();
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert("Une erreur s'est produite. Veuillez réessayer.");
+                }
+            } else {
+                alert("Veuillez remplir tous les champs pour commencer.");
+            }
+        }
+
+        // Autres fonctions (displayQuestion, selectAnswer, checkAnswer, nextQuestion) restent inchangées
+
+        async function showResults() {
+            document.getElementById("game").classList.add("hidden");
+            document.getElementById("result").classList.remove("hidden");
+            document.getElementById("final-score").textContent = `${playerInfo.name}, votre score final est : ${score} / ${questions.length}`;
+            
+            try {
+                await fetch(`${API_URL}/players/${playerId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ score: score }),
+                });
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function restartGame() {
+            currentQuestion = 0;
+            score = 0;
+            playerInfo = {};
+            playerId = null;
+            document.getElementById("result").classList.add("hidden");
+            document.getElementById("player-info").classList.remove("hidden");
+            document.getElementById("player-name").value = "";
+            document.getElementById("player-phone").value = "";
+            document.getElementById("player-country").value = "";
+            document.getElementById("player-city").value = "";
+        }
+    </script>
+</body>
+</html>
