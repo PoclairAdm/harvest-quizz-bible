@@ -1,1 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espace Administrateur - Harvest Quizz Bible V01</title>
+    <style>
+        /* Styles inchangés */
+    </style>
+</head>
+<body>
+    <!-- Structure HTML inchangée -->
 
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        const ADMIN_ID = "admin";
+        const ADMIN_PASSWORD = "password123";
+
+        function login() {
+            const id = document.getElementById('adminId').value;
+            const password = document.getElementById('adminPassword').value;
+
+            if (id === ADMIN_ID && password === ADMIN_PASSWORD) {
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+                loadPlayerData();
+            } else {
+                alert("ID ou mot de passe incorrect.");
+            }
+        }
+
+        async function loadPlayerData() {
+            const playerTableBody = document.getElementById('playerTableBody');
+            playerTableBody.innerHTML = '';
+
+            try {
+                const response = await fetch(`${API_URL}/players`);
+                const players = await response.json();
+
+                players.forEach(player => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${player.name}</td>
+                        <td>${player.phone}</td>
+                        <td>${player.country}</td>
+                        <td>${player.city}</td>
+                        <td>${player.score !== undefined ? player.score : 'N/A'}</td>
+                    `;
+                    playerTableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error:', error);
+                alert("Une erreur s'est produite lors du chargement des données.");
+            }
+        }
+    </script>
+</body>
+</html>
